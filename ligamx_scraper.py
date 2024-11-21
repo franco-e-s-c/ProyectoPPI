@@ -3,11 +3,12 @@ import requests
 import pandas as pd
 import re
 
-res = requests.get("https://fbref.com/en/comps/31/2022-2023/2022-2023-Liga-MX-Stats")
+res = requests.get("https://fbref.com/es/comps/31/2019-2020/horario/Marcadores-y-partidos-de-2019-2020-Liga-MX")
 comm = re.compile("<!--|-->")
 soup = BeautifulSoup(comm.sub("",res.text),'lxml')
 all_tables = soup.findAll("tbody")
 liguilla = soup.findAll("div", class_="matchup")
+matches_table = soup.find("table", id="sched_all")
 liguilla_features = [
     'Instance', 
     'Match Date', 
@@ -101,6 +102,14 @@ league_clausura_features = [
     "xg_diff_per90",
     "notes"
 ]
+partidos_features = [
+    "dayofweek",
+    "home_team",
+    "home_xg",
+    "score",
+    "away_xg",
+    "away_team"
+]
 
 
 def genTable(league_table, features_wanted):
@@ -187,6 +196,30 @@ def genLiguilla(liguilla, features_wanted):
     df_matchup = pd.DataFrame.from_dict(pre_df_matchup)
     return df_matchup[['Instance', 'Match Date', 'Home Team', 'Result', 'Away Team', 'Note', 'Winner']]
 
+def genPartidos(matches_table, features_wanted):
+    pre_df = {feature: [] for feature in features_wanted}
+    matches_body = matches_table.find('tbody')
+    matches_rows = matches_body.find_all('tr', class_=lambda class_value: not (class_value and any(c in ["spacer" "partial_table" "result_all", "thead"] for c in class_value)))
+    for row in matches_rows:
+        if(row.has_attr('class')):
+            print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+            continue
+
+        # dia = row.find('td', {"data-stat":"dayofweek"}).text.strip().enconde().decode("utf-8")
+        # home_team = row.find('td', {"data-stat":"home_team"}).text.strip().encode().decode("utf-8")
+        # home_xg = row.find('td', {"data-stat":""}).text.strip().encode().decode("utf-8")
+        for feature in features_wanted:
+            cell = row.find("td",{"data-stat": feature})
+            a = cell.text.strip().encode()
+            text=a.decode("utf-8")
+            pre_df[feature].append(text)
+    df_match = pd.DataFrame.from_dict(pre_df)
+    return df_match[[col for col in features_wanted]]
+
+df_matches = genPartidos(matches_table, partidos_features)
+df_matches.to_csv("matches.csv", encoding="utf-8-sig")
+
+
 # df_liguilla = genLiguilla(liguilla_apertura, liguilla_features)
 # df_liguilla.to_csv("liguilla.csv", encoding="utf-8-sig")
 
@@ -196,5 +229,5 @@ def genLiguilla(liguilla, features_wanted):
 # df_clausura = genTable(league_clausura, league_clausura_features)
 # df_clausura.to_csv("clausura_2020.csv", encoding="utf-8-sig")
 
-df_HomeAway = genTable(league_ha_table, league_ha_features)
-df_HomeAway.to_csv("HomeAwayResults_2018_2019.csv", encoding="utf-8-sig")
+# df_HomeAway = genTable(league_ha_table, league_ha_features)
+# df_HomeAway.to_csv("HomeAwayResults_2018_2019.csv", encoding="utf-8-sig")
