@@ -105,11 +105,10 @@ league_clausura_features = [
 partidos_features = [
     "dayofweek",
     "home_team",
-    "home_xg",
     "score",
-    "away_xg",
     "away_team"
 ]
+
 
 
 def genTable(league_table, features_wanted):
@@ -202,12 +201,8 @@ def genPartidos(matches_table, features_wanted):
     matches_rows = matches_body.find_all('tr', class_=lambda class_value: not (class_value and any(c in ["spacer" "partial_table" "result_all", "thead"] for c in class_value)))
     for row in matches_rows:
         if(row.has_attr('class')):
-            print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
             continue
 
-        # dia = row.find('td', {"data-stat":"dayofweek"}).text.strip().enconde().decode("utf-8")
-        # home_team = row.find('td', {"data-stat":"home_team"}).text.strip().encode().decode("utf-8")
-        # home_xg = row.find('td', {"data-stat":""}).text.strip().encode().decode("utf-8")
         for feature in features_wanted:
             cell = row.find("td",{"data-stat": feature})
             a = cell.text.strip().encode()
@@ -216,9 +211,56 @@ def genPartidos(matches_table, features_wanted):
     df_match = pd.DataFrame.from_dict(pre_df)
     return df_match[[col for col in features_wanted]]
 
-df_matches = genPartidos(matches_table, partidos_features)
-df_matches.to_csv("matches.csv", encoding="utf-8-sig")
+def scrape_ligamx_matches(links, features_wanted, output_csv):
+    all_matches = []
 
+    for link in links:
+        res = requests.get(link)
+        comm = re.compile("<!--|-->")
+        soup = BeautifulSoup(comm.sub("", res.text), 'lxml')
+        matches_table = soup.find("table", id="sched_all")
+        if matches_table:
+            print(link)
+            season_matches = genPartidos(matches_table, features_wanted)
+            all_matches.append(season_matches)
+        else:
+            print(f"No se encontró la tabla en el enlace: {link}")
+
+
+    if all_matches:
+        final_df = pd.concat(all_matches, ignore_index=True)
+        final_df.to_csv(output_csv, encoding="utf-8-sig", index=False)
+        print(f"Archivo guardado como {output_csv}")
+    else:
+        print("No se encontraron datos en los enlaces proporcionados.")
+
+
+links = [
+    "https://fbref.com/es/comps/31/2019-2020/horario/Marcadores-y-partidos-de-2019-2020-Liga-MX",
+    "https://fbref.com/es/comps/31/2020-2021/horario/Marcadores-y-partidos-de-2020-2021-Liga-MX",
+    "https://fbref.com/es/comps/31/2021-2022/horario/Marcadores-y-partidos-de-2021-2022-Liga-MX",
+    "https://fbref.com/es/comps/31/2022-2023/horario/Marcadores-y-partidos-de-2022-2023-Liga-MX",
+    "https://fbref.com/es/comps/31/2023-2024/horario/Marcadores-y-partidos-de-2023-2024-Liga-MX",
+    "https://fbref.com/es/comps/31/2018-2019/horario/Marcadores-y-partidos-de-2018-2019-Liga-MX",
+    "https://fbref.com/es/comps/31/2017-2018/horario/Marcadores-y-partidos-de-2017-2018-Liga-MX",
+    "https://fbref.com/es/comps/31/2016-2017/horario/Marcadores-y-partidos-de-2016-2017-Liga-MX",
+    "https://fbref.com/es/comps/31/2015-2016/horario/Marcadores-y-partidos-de-2015-2016-Liga-MX",
+    "https://fbref.com/es/comps/31/2014-2015/horario/Marcadores-y-partidos-de-2014-2015-Liga-MX",
+    "https://fbref.com/es/comps/31/2013-2014/horario/Marcadores-y-partidos-de-2013-2014-Liga-MX",
+    "https://fbref.com/es/comps/31/2012-2013/horario/Marcadores-y-partidos-de-2012-2013-Liga-MX",
+    "https://fbref.com/es/comps/31/2011-2012/horario/Marcadores-y-partidos-de-2011-2012-Liga-MX",
+    "https://fbref.com/es/comps/31/2010-2011/horario/Marcadores-y-partidos-de-2010-2011-Liga-MX",
+    "https://fbref.com/es/comps/31/2009-2010/horario/Marcadores-y-partidos-de-2009-2010-Liga-MX",
+    "https://fbref.com/es/comps/31/2008-2009/horario/Marcadores-y-partidos-de-2008-2009-Liga-MX",
+    "https://fbref.com/es/comps/31/2007-2008/horario/Marcadores-y-partidos-de-2007-2008-Liga-MX",
+    "https://fbref.com/es/comps/31/2006-2007/horario/Marcadores-y-partidos-de-2006-2007-Liga-MX",
+    "https://fbref.com/es/comps/31/2005-2006/horario/Marcadores-y-partidos-de-2005-2006-Liga-MX",
+    "https://fbref.com/es/comps/31/2004-2005/horario/Marcadores-y-partidos-de-2004-2005-Liga-MX",
+    "https://fbref.com/es/comps/31/2003-2004/horario/Marcadores-y-partidos-de-2003-2004-Liga-MX",
+
+]
+
+scrape_ligamx_matches(links, partidos_features, "matchess.csv")
 
 # df_liguilla = genLiguilla(liguilla_apertura, liguilla_features)
 # df_liguilla.to_csv("liguilla.csv", encoding="utf-8-sig")
