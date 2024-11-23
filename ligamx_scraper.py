@@ -108,7 +108,29 @@ partidos_features = [
     "score",
     "away_team"
 ]
-
+links = [
+    "https://fbref.com/es/comps/31/2019-2020/horario/Marcadores-y-partidos-de-2019-2020-Liga-MX",
+    "https://fbref.com/es/comps/31/2020-2021/horario/Marcadores-y-partidos-de-2020-2021-Liga-MX",
+    "https://fbref.com/es/comps/31/2021-2022/horario/Marcadores-y-partidos-de-2021-2022-Liga-MX",
+    "https://fbref.com/es/comps/31/2022-2023/horario/Marcadores-y-partidos-de-2022-2023-Liga-MX",
+    "https://fbref.com/es/comps/31/2023-2024/horario/Marcadores-y-partidos-de-2023-2024-Liga-MX",
+    "https://fbref.com/es/comps/31/2018-2019/horario/Marcadores-y-partidos-de-2018-2019-Liga-MX",
+    "https://fbref.com/es/comps/31/2017-2018/horario/Marcadores-y-partidos-de-2017-2018-Liga-MX",
+    "https://fbref.com/es/comps/31/2016-2017/horario/Marcadores-y-partidos-de-2016-2017-Liga-MX",
+    "https://fbref.com/es/comps/31/2015-2016/horario/Marcadores-y-partidos-de-2015-2016-Liga-MX",
+    "https://fbref.com/es/comps/31/2014-2015/horario/Marcadores-y-partidos-de-2014-2015-Liga-MX",
+    "https://fbref.com/es/comps/31/2013-2014/horario/Marcadores-y-partidos-de-2013-2014-Liga-MX",
+    "https://fbref.com/es/comps/31/2012-2013/horario/Marcadores-y-partidos-de-2012-2013-Liga-MX",
+    "https://fbref.com/es/comps/31/2011-2012/horario/Marcadores-y-partidos-de-2011-2012-Liga-MX",
+    "https://fbref.com/es/comps/31/2010-2011/horario/Marcadores-y-partidos-de-2010-2011-Liga-MX",
+    "https://fbref.com/es/comps/31/2009-2010/horario/Marcadores-y-partidos-de-2009-2010-Liga-MX",
+    "https://fbref.com/es/comps/31/2008-2009/horario/Marcadores-y-partidos-de-2008-2009-Liga-MX",
+    "https://fbref.com/es/comps/31/2007-2008/horario/Marcadores-y-partidos-de-2007-2008-Liga-MX",
+    "https://fbref.com/es/comps/31/2006-2007/horario/Marcadores-y-partidos-de-2006-2007-Liga-MX",
+    "https://fbref.com/es/comps/31/2005-2006/horario/Marcadores-y-partidos-de-2005-2006-Liga-MX",
+    "https://fbref.com/es/comps/31/2004-2005/horario/Marcadores-y-partidos-de-2004-2005-Liga-MX",
+    "https://fbref.com/es/comps/31/2003-2004/horario/Marcadores-y-partidos-de-2003-2004-Liga-MX",
+]
 
 
 def genTable(league_table, features_wanted):
@@ -211,7 +233,7 @@ def genPartidos(matches_table, features_wanted):
     df_match = pd.DataFrame.from_dict(pre_df)
     return df_match[[col for col in features_wanted]]
 
-def scrape_ligamx_matches(links, features_wanted, output_csv):
+def genAllDataPartidos(links, features_wanted, output_csv):
     all_matches = []
 
     for link in links:
@@ -235,41 +257,16 @@ def scrape_ligamx_matches(links, features_wanted, output_csv):
         print("No se encontraron datos en los enlaces proporcionados.")
 
 
-links = [
-    "https://fbref.com/es/comps/31/2019-2020/horario/Marcadores-y-partidos-de-2019-2020-Liga-MX",
-    "https://fbref.com/es/comps/31/2020-2021/horario/Marcadores-y-partidos-de-2020-2021-Liga-MX",
-    "https://fbref.com/es/comps/31/2021-2022/horario/Marcadores-y-partidos-de-2021-2022-Liga-MX",
-    "https://fbref.com/es/comps/31/2022-2023/horario/Marcadores-y-partidos-de-2022-2023-Liga-MX",
-    "https://fbref.com/es/comps/31/2023-2024/horario/Marcadores-y-partidos-de-2023-2024-Liga-MX",
-    "https://fbref.com/es/comps/31/2018-2019/horario/Marcadores-y-partidos-de-2018-2019-Liga-MX",
-    "https://fbref.com/es/comps/31/2017-2018/horario/Marcadores-y-partidos-de-2017-2018-Liga-MX",
-    "https://fbref.com/es/comps/31/2016-2017/horario/Marcadores-y-partidos-de-2016-2017-Liga-MX",
-    "https://fbref.com/es/comps/31/2015-2016/horario/Marcadores-y-partidos-de-2015-2016-Liga-MX",
-    "https://fbref.com/es/comps/31/2014-2015/horario/Marcadores-y-partidos-de-2014-2015-Liga-MX",
-    "https://fbref.com/es/comps/31/2013-2014/horario/Marcadores-y-partidos-de-2013-2014-Liga-MX",
-    "https://fbref.com/es/comps/31/2012-2013/horario/Marcadores-y-partidos-de-2012-2013-Liga-MX",
-    "https://fbref.com/es/comps/31/2011-2012/horario/Marcadores-y-partidos-de-2011-2012-Liga-MX",
-    "https://fbref.com/es/comps/31/2010-2011/horario/Marcadores-y-partidos-de-2010-2011-Liga-MX",
-    "https://fbref.com/es/comps/31/2009-2010/horario/Marcadores-y-partidos-de-2009-2010-Liga-MX",
-    "https://fbref.com/es/comps/31/2008-2009/horario/Marcadores-y-partidos-de-2008-2009-Liga-MX",
-    "https://fbref.com/es/comps/31/2007-2008/horario/Marcadores-y-partidos-de-2007-2008-Liga-MX",
-    "https://fbref.com/es/comps/31/2006-2007/horario/Marcadores-y-partidos-de-2006-2007-Liga-MX",
-    "https://fbref.com/es/comps/31/2005-2006/horario/Marcadores-y-partidos-de-2005-2006-Liga-MX",
-    "https://fbref.com/es/comps/31/2004-2005/horario/Marcadores-y-partidos-de-2004-2005-Liga-MX",
-    "https://fbref.com/es/comps/31/2003-2004/horario/Marcadores-y-partidos-de-2003-2004-Liga-MX",
+genAllDataPartidos(links, partidos_features, "matchess.csv")
 
-]
+df_liguilla = genLiguilla(liguilla_apertura, liguilla_features)
+df_liguilla.to_csv("liguilla.csv", encoding="utf-8-sig")
 
-scrape_ligamx_matches(links, partidos_features, "matchess.csv")
+df_apertura = genTable(league_apertura, league_apertura_features)
+df_apertura.to_csv("apertura_2019.csv", encoding="utf-8-sig")
 
-# df_liguilla = genLiguilla(liguilla_apertura, liguilla_features)
-# df_liguilla.to_csv("liguilla.csv", encoding="utf-8-sig")
+df_clausura = genTable(league_clausura, league_clausura_features)
+df_clausura.to_csv("clausura_2020.csv", encoding="utf-8-sig")
 
-# df_apertura = genTable(league_apertura, league_apertura_features)
-# df_apertura.to_csv("apertura_2019.csv", encoding="utf-8-sig")
-
-# df_clausura = genTable(league_clausura, league_clausura_features)
-# df_clausura.to_csv("clausura_2020.csv", encoding="utf-8-sig")
-
-# df_HomeAway = genTable(league_ha_table, league_ha_features)
-# df_HomeAway.to_csv("HomeAwayResults_2018_2019.csv", encoding="utf-8-sig")
+df_HomeAway = genTable(league_ha_table, league_ha_features)
+df_HomeAway.to_csv("HomeAwayResults_2018_2019.csv", encoding="utf-8-sig")
