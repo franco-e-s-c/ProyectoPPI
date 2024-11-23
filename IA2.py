@@ -5,6 +5,66 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import classification_report, accuracy_score
 from imblearn.over_sampling import SMOTE
 from sklearn.utils.class_weight import compute_class_weight
+from bs4 import BeautifulSoup
+import requests
+import re
+
+# res = requests.get("https://fbref.com/en/comps/31/2024-2025/2024-2025-Liga-MX-Stats")
+# comm = re.compile("<!--|-->")
+# soup = BeautifulSoup(comm.sub("",res.text),'lxml')
+# all_tables = soup.findAll("tbody")
+# liguilla = soup.findAll("div", class_="matchup")
+# matches_table = soup.find("table", id="sched_all")
+# league_apertura = all_tables[2]
+# league_apertura_features =[
+#     "games",
+#     "wins",
+#     "ties",
+#     "losses",
+#     "goals_for",
+#     "goals_against",
+#     "goal_diff",
+#     "points",
+#     "points_avg",
+#     "xg_for",
+#     "xg_against",
+#     "xg_diff",
+#     "xg_diff_per90",
+#     "notes"
+# ]
+
+# def genTable(league_table, features_wanted):
+#     pre_df = {feature: [] for feature in features_wanted}
+#     rows_squad = league_table.find_all('tr')
+#     for row in rows_squad:
+#         if(row.find('th',{"scope":"row"}) != None):
+#             pos = row.find('th',{"data-stat":"rank"}).text.strip().encode().decode("utf-8")
+#             name = row.find('td',{"data-stat":"team"}).text.strip().encode().decode("utf-8")
+#             if 'rank' in pre_df:
+#                 pre_df['rank'].append(pos)
+#             else:
+#                 pre_df['rank'] = [pos]
+#             if 'team' in pre_df:
+#                 pre_df['team'].append(name)
+#             else:
+#                 pre_df['team'] = [name]
+#             for f in features_wanted:
+#                 cell = row.find("td",{"data-stat": f})
+#                 a = cell.text.strip().encode()
+#                 text=a.decode("utf-8")
+#                 pre_df[f].append(text)
+#     df_squad = pd.DataFrame.from_dict(pre_df)
+#     return df_squad[["rank", "team"] + [col for col in features_wanted]]
+
+# df_apertura = genTable(league_apertura, league_apertura_features)
+# df_apertura.to_csv("apertura_2024.csv", encoding="utf-8-sig")
+# teamsList = df_apertura['team'].tolist
+# print(teamsList)
+
+df_apertura = pd.read_csv('apertura_2024.csv')
+teamsList = df_apertura['team'].values.tolist()
+teamsList = teamsList[:10]
+print(teamsList)
 
 # Cargar datos
 matches = pd.read_csv('matchess.csv')
@@ -67,14 +127,23 @@ X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled, te
 
 # Ajuste de hiperparámetros con GridSearchCV para la regresión logística
 param_grid = {
-    'C': [0.01, 0.1, 1, 10, 100],  # Regularización inversa
-    'solver': ['liblinear', 'saga'],  # Métodos de optimización
-    'max_iter': [100, 200, 300]  # Número de iteraciones
+    'C': [0.01, 0.1, 1, 10],  # Regularización inversa
+    'penalty': ['l1', 'l2', 'elasticnet'],  # Tipos de regularización
+    'solver': ['saga'],  # SAGA soporta L1, L2 y Elastic Net
+    'l1_ratio': [0.1, 0.5, 0.9],  # Solo para Elastic Net
+    'max_iter': [300, 500, 600]  # Aumentar iteraciones para asegurar convergencia
 }
 
 # Inicializar y ajustar el modelo
-logreg = LogisticRegression(random_state=42, multi_class='ovr')
-grid_search = GridSearchCV(logreg, param_grid, cv=5, scoring='accuracy', verbose=1, n_jobs=-1)
+logreg = LogisticRegression(multi_class='ovr', random_state=42)
+grid_search = GridSearchCV(
+    logreg,
+    param_grid,
+    cv=5,
+    scoring='f1_weighted',  # Métrica ponderada para clases desbalanceadas
+    verbose=1,
+    n_jobs=-1
+)
 grid_search.fit(X_train, y_train)
 
 # Mejor modelo
